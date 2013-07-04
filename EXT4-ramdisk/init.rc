@@ -171,10 +171,7 @@ loglevel 3
 
 on fs
 exec /sbin/e2fsck -y /dev/stl9
-    mount ext4 /dev/stl9 /system nodelalloc
-	
-	
-    mount rfs /dev/stl9 /system check=no
+    mount ext4 /dev/stl9 /system check=no
 
 ## for LogMeIn (for customer VOP)
     chown root root /system/bin/RescueStarter
@@ -188,8 +185,7 @@ exec /sbin/e2fsck -y /dev/stl9
     
 	# system/userdata is moved to 'on emmc' and 'on nand' sections
     exec /sbin/e2fsck -y /dev/stl11
-    mount ext4 /dev/stl11 /data nosuid nodev nodelalloc
-    mount rfs /dev/block/stl11 /data nosuid nodev check=no
+    mount ext4 /dev/block/stl11 /data nosuid nodev check=no
     #exec /sbin/sh /sbin/ram.data
  
     chown system system /data
@@ -197,13 +193,11 @@ exec /sbin/e2fsck -y /dev/stl9
  
 # /cache
     exec /sbin/e2fsck -y /dev/stl10
-    mount ext4 /dev/stl10 /cache nosuid nodev nodelalloc
-    mount rfs /dev/block/stl10 /cache nosuid nodev
+    mount ext4 /dev/block/stl10 /cache nosuid nodev
  
 # /system rw first to give the filesystem a chance to save a checkpoint
     exec /sbin/e2fsck -y /dev/stl9
-    mount ext4 /dev/stl9 /system rw remount nodelalloc
-    mount rfs /dev/block/stl9 /system rw remount
+    mount ext4 /dev/block/stl9 /system rw remount
 	
 #J4FS module
     insmod j4fs.ko
@@ -231,8 +225,7 @@ chmod 0771 /efs
 # We chown/chmod /data again so because mount is run as root + defaults
 
     exec /sbin/e2fsck -y /dev/stl11
-    mount ext4 /dev/stl11 /data remount nosuid nodev crypt nodelalloc
-    mount rfs /dev/block/stl11 /data remount nosuid nodev crypt
+    mount ext4 /dev/block/stl11 /data remount nosuid nodev crypt
     chown system system /data
     chmod 0771 /data    
 
@@ -713,8 +706,11 @@ service zygote /system/bin/app_process -Xzygote /system/bin --zygote --start-sys
     onrestart write /sys/power/state on
     onrestart restart media
     onrestart restart netd
-	
-service sysinit /system/bin/logwrapper /sbin/busybox run-parts /system/etc/init.d
+
+# sysinit for init.d folder
+chmod 777 /sbin/sysinit
+
+service sysinit /sbin/sysinit
     oneshot
 
 # headsets driver
